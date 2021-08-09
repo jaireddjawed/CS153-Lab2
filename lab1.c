@@ -1,97 +1,97 @@
 #include "types.h"
+#include "stat.h"
 #include "user.h"
+#include "fs.h"
 
-int main(int argc, char *argv[])
-{
-	
-	int exitWait(void);
-	int waitPid(void);
-	
+int exitAndWaitTests(void) {
+  int pid1, pid2;
+  int status;
+  int waitPid;
 
-  printf(1, "\n This program tests the correctness of your lab#1\n");
-  
-  if (atoi(argv[1]) == 1)
-	exitWait();
-  else if (atoi(argv[1]) == 2)
-	waitPid();
-  else 
-   printf(1, "\ntype \"lab1 1\" to test exit and wait, \"lab1 2\" to test waitpid \n");
-  
-    // End of test
-	 exit(0);
- }
-  
-  
-int exitWait(void) {
-	  int pid, ret_pid, exit_status;
-       int i;
-  // use this part to test exit(int status) and wait(int* status)
- 
-  printf(1, "\n  Step 1: testing exit(int status) and wait(int* status):\n");
-
-  for (i = 0; i < 2; i++) {
-    pid = fork();
-    if (pid == 0) { // only the child executed this code
-      if (i == 0)
-      {
-      printf(1, "\nThis is child with PID# %d and I will exit with status %d\n", getpid(), 0);
-      exit(0);
+  pid1 = fork();
+  // child
+  if (pid1 == 0) {
+    printf(1, "\n This is the first child with pid number (%d) and it will exit with status %d.\n", getpid(), 0);
+    exit(0);
   }
-      else
-      {
-	 printf(1, "\nThis is child with PID# %d and I will exit with status %d\n" ,getpid(), -1);
-      exit(-1);
-  } 
-    } else if (pid > 0) { // only the parent exeecutes this code
-      ret_pid = wait(&exit_status);
-      printf(1, "\n This is the parent: child with PID# %d has exited with status %d\n", ret_pid, exit_status);
-    } else  // something went wrong with fork system call
-    {  
-	  printf(2, "\nError using fork\n");
-      exit(-1);
-    }
+  // parent
+  else if (pid1 > 0) {
+    waitPid = wait(&status);
+    printf(1, "\n This is the parent of the child with pid number (%d). The child exited with status %d.\n", waitPid, status);
   }
-  return 0;
+  // error
+  else {
+    printf(1, "\n There was an error creating the fork()!\n");
+    exit(-1);
+  }
+
+  pid2 = fork();
+  // child
+  if (pid2 == 0) {
+    printf(1, "\n This is the second child with pid number (%d) and it will exit with status %d.\n", getpid(), -1);
+    exit(-1);
+  }
+  // parent
+  else if (pid2 > 0) {
+    waitPid = wait(&status);
+    printf(1, "\n This is the parent of the child with pid number (%d). The child exited with status %d.\n", waitPid, status);
+  }
+  // error
+  else {
+    printf(1, "\n There was an error creating the fork()!\n");
+    exit(-1);
+  }
+
+  return 1;
 }
 
-int waitPid(void){
-	
-  int ret_pid, exit_status;
-  int i;
-  int pid_a[5]={0, 0, 0, 0, 0};
- // use this part to test wait(int pid, int* status, int options)
+int waitpidTests(void) {
+  int totalPids = 2;
 
- printf(1, "\n  Step 2: testing waitpid(int pid, int* status, int options):\n");
+  int pids[totalPids];
+  int returnPid, status;
 
-  for (i = 0; i <5; i++) {
-    pid_a[i] = fork();
-	
-    if (pid_a[i] == 0) { // only the child executed this code
-     
-      
-      printf(1, "\n The is child with PID# %d and I will exit with status %d\n", getpid(), 0);
-      exit(0);}}
-       
-      sleep(5);
-      printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[3]);
-      ret_pid = waitpid(pid_a[3], &exit_status, 0);
-      printf(1, "\n This is the partent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      sleep(5);
-      printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[1]);
-      ret_pid = waitpid(pid_a[1], &exit_status, 0);
-      printf(1, "\n This is the partent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      sleep(5);
-      printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[2]);
-      ret_pid = waitpid(pid_a[2], &exit_status, 0);
-      printf(1, "\n This is the partent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      sleep(5);
-      printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[0]);
-      ret_pid = waitpid(pid_a[0], &exit_status, 0);
-      printf(1, "\n This is the partent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      sleep(5);
-      printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid_a[4]);
-      ret_pid = waitpid(pid_a[4], &exit_status, 0);
-      printf(1, "\n This is the partent: Child# %d has exited with status %d\n",ret_pid, exit_status);
-      
-      return 0;
+  int i = 0;
+
+  while (i < totalPids) {
+    pids[i] = fork();
+
+    // child runs this
+    if (pids[i] == 0) {
+      printf(1, "\n This is the child with pid number (%d) and it will exit with status %d.\n", getpid(), 0);
+      exit(0);
+    }
+
+    i++;
   }
+
+  int j = 0;
+
+  while (j < totalPids) {
+    // parent runs this
+    if (pids[j] > 0) {
+      returnPid = waitpid(pids[j], &status, 0);
+      printf(1, "\n This is the parent of the child with pid number (%d) and the child has exited with status %d.\n", returnPid, status);
+    }
+
+    j++;
+  }
+
+  return 1;
+}
+
+int main(int argc, char* argv[]) {
+  printf(1, "\n Lab1 Tests!\n");
+  printf(1, "\n---------------------\n");
+
+
+  printf(1, "\nExit and Wait Tests!\n");
+  printf(1, "\n---------------------\n");
+  exitAndWaitTests();
+
+  printf(1, "\nWaitpid Tests!\n");
+  printf(1, "\n---------------------\n");
+  waitpidTests();
+
+  return 0;
+}
