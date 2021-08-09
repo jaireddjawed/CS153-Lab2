@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (pid > 0) {
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 4; i++) {
       // wait all parent procs
       wait(0);
     }
