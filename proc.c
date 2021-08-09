@@ -377,7 +377,7 @@ void scheduler(void) {
   struct cpu *c = mycpu();
   c->proc = 0;
 
-  struct proc* highestProc;
+  struct proc* highestPriorityProc;
   
   for(;;) {
     // Enable interrupts on this processor.
@@ -386,19 +386,17 @@ void scheduler(void) {
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     
-    highestProc = ptable.proc;
+    highestPriorityProc = ptable.proc;
     for (p = ptable.proc; p< &ptable.proc[NPROC]; p++) {
-      if ((p->state == RUNNABLE) && (p->priority > highestProc->priority)) {
-          if (p->priority > 1) {
-            p->priority--;
-          }
+      if ((p->state == RUNNABLE) && (p->priority > highestPriorityProc->priority) && (p->priority > 1)) {
+          p->priority--;
       } else if (p->state != RUNNABLE) {
         continue;
       }
 
 
-      if (p->priority <= highestProc->priority) {
-        highestProc = p;
+      if (p->priority <= highestPriorityProc->priority) {
+        highestPriorityProc = p;
       } else {
         // make an aging process a higher priority (if not priority 1 already)
         if (p->priority > 1) {
@@ -407,15 +405,15 @@ void scheduler(void) {
       }
     }
 
-    c->proc = highestProc;
-    switchuvm(highestProc);
-    highestProc->state = RUNNING;
+    c->proc = highestPriorityProc;
+    switchuvm(highestPriorityProc);
+    highestPriorityProc->state = RUNNING;
 
     // deprioritize the highest priority process
     // this occurs because we want older processes to be prioritized
-    highestProc->priority++; 
+    highestPriorityProc->priority++; 
 
-    swtch(&(c->scheduler), highestProc->context);
+    swtch(&(c->scheduler), highestPriorityProc->context);
     switchkvm();
     
     // Process should be done running now
