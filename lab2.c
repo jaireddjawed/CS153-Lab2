@@ -5,13 +5,13 @@ int main(int argc, char *argv[]) {
   printf(1, "\n Lab 2 Tests! \n");
   printf(1, "\n");
 
-  int priorities[3] = {16, 11, 6};
+  int priorities[4] = {16, 11, 6, 4};
   setpriority(1);
 
   int i, j, k;
   int pid;
 
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < 4; i++) {
     pid = fork();
 
     // error
