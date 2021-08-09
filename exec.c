@@ -21,6 +21,11 @@ exec(char *path, char **argv)
 
   begin_op();
 
+  // prints for debugging
+  cprintf("path: %s\n", path);
+  cprintf("argv[0]: %s\n", argv[0]);
+  cprintf("argv[1]: %s\n", argv[1]);
+
   if((ip = namei(path)) == 0){
     end_op();
     cprintf("exec: fail\n");

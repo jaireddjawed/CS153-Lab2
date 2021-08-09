@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
   int priorities[4] = {16, 11, 6, 4};
   setpriority(1);
 
-  int i, j, k;
+  int i;
   int pid;
 
   for (i = 0; i < 4; i++) {
@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 	  else if (pid == 0) {
       setpriority(priorities[i]);	
 
+      int j, k;
       // add some wait period between prints
 	    for (j = 0; j< 100000; j++) {
         for(k = 0 ; k < 10000; k++) {
